@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>Task Management API Tester</title>
+  <style>
+    body { font-family: sans-serif; max-width: 700px; margin: 30px auto; padding: 0 20px; background: #f5f5f5; }
+    h2 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 8px; }
+    .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    input, textarea { width: 100%; padding: 8px; margin: 6px 0 12px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+    button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    pre { background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 4px; overflow-x: auto; font-size: 13px; white-space: pre-wrap; }
+    .token-box { background: #e8f5e9; padding: 10px; border-radius: 4px; font-size: 12px; word-break: break-all; margin-top: 8px; }
+    label { font-weight: bold; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+<h1>🧪 Task Management API Tester</h1>
+<p>API: <strong>http://localhost:5280</strong></p>
+
+<!-- LOGIN -->
+<div class="card">
+  <h2>1. Login</h2>
+  <label>Email</label>
+  <input id="email" value="test@test.com">
+  <label>Password</label>
+  <input id="password" type="password" value="123456">
+  <button onclick="login()">Login</button>
+  <div id="token-display"></div>
+  <pre id="login-result"></pre>
+</div>
+
+<!-- CREATE PROJECT -->
+<div class="card">
+  <h2>2. สร้าง Project</h2>
+  <label>Project Name</label>
+  <input id="project-name" value="My Project">
+  <label>Description</label>
+  <input id="project-desc" value="Test description">
+  <button onclick="createProject()">สร้าง Project</button>
+  <pre id="project-result"></pre>
+</div>
+
+<!-- UPDATE TASK STATUS -->
+<div class="card">
+  <h2>3. อัปเดต Task Status</h2>
+  <label>Task ID</label>
+  <input id="task-id" placeholder="วาง Task ID ตรงนี้">
+  <label>Status</label>
+  <select id="task-status" style="width:100%;padding:8px;margin-bottom:12px;border:1px solid #ccc;border-radius:4px;">
+    <option value="0">0 = Todo</option>
+    <option value="1">1 = InProgress</option>
+    <option value="2">2 = Done</option>
+  </select>
+  <button onclick="updateTaskStatus()">อัปเดต Status</button>
+  <pre id="task-result"></pre>
+</div>
+
+<!-- CREATE TASK -->
+<div class="card">
+  <h2>4. สร้าง Task</h2>
+  <label>Title</label>
+  <input id="task-title" value="My First Task">
+  <label>Project ID</label>
+  <input id="task-project-id" placeholder="วาง Project ID ตรงนี้">
+  <button onclick="createTask()">สร้าง Task</button>
+  <pre id="create-task-result"></pre>
+</div>
+
+<script>
+  const BASE = "http://localhost:5280";
+  let token = "";
+
+  async function login() {
+    const res = await fetch(`${BASE}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: document.getElementById("email").value, password: document.getElementById("password").value })
+    });
+    const data = await res.json();
+    document.getElementById("login-result").textContent = JSON.stringify(data, null, 2);
+    if (data.token) {
+      token = data.token;
+      document.getElementById("token-display").innerHTML = `<div class="token-box">✅ Token saved! (${token.substring(0,40)}...)</div>`;
+    }
+  }
+
+  async function createProject() {
+    const res = await fetch(`${BASE}/api/projects`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+      body: JSON.stringify({ name: document.getElementById("project-name").value, description: document.getElementById("project-desc").value })
+    });
+    const data = await res.json();
+    document.getElementById("project-result").textContent = JSON.stringify(data, null, 2);
+  }
+
+  async function updateTaskStatus() {
+    const taskId = document.getElementById("task-id").value;
+    const status = parseInt(document.getElementById("task-status").value);
+    const res = await fetch(`${BASE}/api/tasks/${taskId}/status`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+      body: JSON.stringify({ status })
+    });
+    const data = await res.json();
+    document.getElementById("task-result").textContent = JSON.stringify(data, null, 2);
+  }
+
+  async function createTask() {
+    const res = await fetch(`${BASE}/api/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+      body: JSON.stringify({
+        title: document.getElementById("task-title").value,
+        projectId: document.getElementById("task-project-id").value
+      })
+    });
+    const data = await res.json();
+    document.getElementById("create-task-result").textContent = JSON.stringify(data, null, 2);
+  }
+</script>
+
+</body>
+</html>
