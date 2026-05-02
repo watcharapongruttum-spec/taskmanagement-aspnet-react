@@ -10,4 +10,5 @@ public interface IAuthService
     Task<ServiceResult<AuthResponse>> RefreshTokenAsync(string refreshToken);
     Task<ServiceResult<bool>> LogoutAsync(string refreshToken);
     Task<ServiceResult<bool>> RevokeAllUserTokensAsync(Guid userId);
+    Task<ServiceResult<bool>> UpdateProfileAsync(Guid userId, UpdateProfileRequest request);
 }

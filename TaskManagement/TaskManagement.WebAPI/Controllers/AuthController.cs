@@ -63,4 +63,31 @@ public class AuthController : ControllerBase
             return BadRequest(new { error = result.ErrorMessage });
         return Ok(new { message = "Revoke tokens สำเร็จ" });
     }
+
+
+
+
+
+
+[HttpPut("profile")]
+[Authorize]
+public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest request)
+{
+    var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    var result = await _authService.UpdateProfileAsync(userId, request);
+    if (!result.IsSuccess)
+        return BadRequest(new { error = result.ErrorMessage });
+    return Ok(new { message = "อัปเดต Profile สำเร็จ" });
+}
+
+
+
+
+
+
+
+
+
+
+
 }

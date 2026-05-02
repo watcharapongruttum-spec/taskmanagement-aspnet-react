@@ -2,7 +2,7 @@ import TaskCard from './TaskCard'
 
 const statusColor = { 'Todo': '#faad14', 'In Progress': '#1677ff', 'Done': '#52c41a' }
 
-export default function TaskColumn({ title, tasks, onUpdateStatus, onDelete, statusValue }) {
+export default function TaskColumn({ title, tasks, onUpdateStatus, onDelete, onEdit, statusValue }) {
   const handleDragOver = (e) => e.preventDefault();
 
   const handleDrop = (e) => {
@@ -17,7 +17,7 @@ export default function TaskColumn({ title, tasks, onUpdateStatus, onDelete, sta
         <span style={styles.count}>{tasks.length}</span>
       </div>
       {tasks.map((task) => (
-        <TaskCard key={task.id} task={task} onUpdateStatus={onUpdateStatus} onDelete={onDelete} />
+        <TaskCard key={task.id} task={task} onDelete={onDelete} onEdit={onEdit} />
       ))}
       {tasks.length === 0 && <p style={styles.empty}>ไม่มี Task</p>}
     </div>

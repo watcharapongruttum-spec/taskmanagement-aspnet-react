@@ -67,7 +67,14 @@ public class ProjectsController : ControllerBase
 
 
 
-
+[HttpPut("{id}")]
+public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProjectRequest request)
+{
+    var result = await _projectService.UpdateAsync(id, request);
+    if (!result.IsSuccess)
+        return NotFound(new { error = result.ErrorMessage });
+    return Ok(result.Data);
+}
 
 
 

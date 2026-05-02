@@ -9,4 +9,5 @@ public interface ITaskService
     Task<ServiceResult<List<TaskResponse>>> GetByProjectAsync(Guid projectId);
     Task<ServiceResult<TaskResponse>> UpdateStatusAsync(Guid taskId, UpdateTaskStatusRequest request);
     Task<ServiceResult<bool>> DeleteAsync(Guid taskId);
+    Task<ServiceResult<TaskResponse>> UpdateAsync(Guid taskId, UpdateTaskRequest request);
 }

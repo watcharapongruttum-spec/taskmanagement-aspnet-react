@@ -85,7 +85,17 @@ public class ProjectService : IProjectService
 
 
 
-
+public async Task<ServiceResult<ProjectResponse>> UpdateAsync(Guid id, UpdateProjectRequest request)
+{
+    var project = await _db.Projects.Include(p => p.Owner).FirstOrDefaultAsync(p => p.Id == id);
+    if (project is null)
+        return ServiceResult<ProjectResponse>.Failure("Project not found.");
+    project.Name = request.Name;
+    project.Description = request.Description;
+    project.UpdatedAt = DateTime.UtcNow;
+    await _db.SaveChangesAsync();
+    return ServiceResult<ProjectResponse>.Success(MapToResponse(project, project.Owner.Username));
+}
 
 
 

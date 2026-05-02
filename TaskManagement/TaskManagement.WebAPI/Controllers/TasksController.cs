@@ -53,4 +53,28 @@ public class TasksController : ControllerBase
             return NotFound(new { error = result.ErrorMessage });
         return NoContent();
     }
+
+
+
+
+
+    [HttpPut("{taskId}")]
+public async Task<IActionResult> Update(Guid taskId, [FromBody] UpdateTaskRequest request)
+{
+    var result = await _taskService.UpdateAsync(taskId, request);
+    if (!result.IsSuccess)
+        return NotFound(new { error = result.ErrorMessage });
+    return Ok(result.Data);
+}
+
+
+
+
+
+
+
+
+
+
+
 }

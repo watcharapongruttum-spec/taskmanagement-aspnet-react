@@ -9,4 +9,5 @@ public interface IProjectService
     Task<ServiceResult<List<ProjectResponse>>> GetAllByOwnerAsync(Guid ownerId);
     Task<ServiceResult<ProjectResponse>> GetByIdAsync(Guid id);
     Task<ServiceResult<bool>> DeleteAsync(Guid id);
+    Task<ServiceResult<ProjectResponse>> UpdateAsync(Guid id, UpdateProjectRequest request);
 }

@@ -110,4 +110,46 @@ public class TaskService : ITaskService
         return ServiceResult<bool>.Success(true);
     }
 
+
+
+
+
+
+
+
+
+public async Task<ServiceResult<TaskResponse>> UpdateAsync(Guid taskId, UpdateTaskRequest request)
+{
+    var task = await _db.Tasks.Include(t => t.Assignee).FirstOrDefaultAsync(t => t.Id == taskId);
+    if (task is null)
+        return ServiceResult<TaskResponse>.Failure("Task not found.");
+    task.Title = request.Title;
+    task.Description = request.Description;
+    task.AssigneeId = request.AssigneeId;
+    task.UpdatedAt = DateTime.UtcNow;
+    await _db.SaveChangesAsync();
+    var response = await MapToResponseAsync(task);
+    await _notification.NotifyTaskUpdatedAsync(task.ProjectId, response);
+    return ServiceResult<TaskResponse>.Success(response);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

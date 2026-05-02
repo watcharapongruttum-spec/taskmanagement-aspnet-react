@@ -180,4 +180,44 @@ public class AuthService : IAuthService
         var bytes = RandomNumberGenerator.GetBytes(64);
         return Convert.ToBase64String(bytes);
     }
+
+
+
+
+public async Task<ServiceResult<bool>> UpdateProfileAsync(Guid userId, UpdateProfileRequest request)
+{
+    var user = await _db.Users.FindAsync(userId);
+    if (user is null)
+        return ServiceResult<bool>.Failure("User not found.");
+
+    if (!string.IsNullOrWhiteSpace(request.Username))
+        user.Username = request.Username;
+
+    if (!string.IsNullOrWhiteSpace(request.NewPassword))
+    {
+        if (string.IsNullOrWhiteSpace(request.CurrentPassword))
+            return ServiceResult<bool>.Failure("กรุณาใส่ Password เดิม");
+
+        if (!BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.PasswordHash))
+            return ServiceResult<bool>.Failure("Password เดิมไม่ถูกต้อง");
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+    }
+
+    user.UpdatedAt = DateTime.UtcNow;
+    await _db.SaveChangesAsync();
+    return ServiceResult<bool>.Success(true);
+}
+
+
+
+
+
+
+
+
+
+
+
+
 }
