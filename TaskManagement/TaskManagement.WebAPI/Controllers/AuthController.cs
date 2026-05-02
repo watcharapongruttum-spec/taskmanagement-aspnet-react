@@ -83,7 +83,15 @@ public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest r
 
 
 
-
+[HttpPut("profile-admin")]
+[Authorize(Roles = "Admin")]
+public async Task<IActionResult> AdminUpdateProfile([FromBody] AdminUpdateProfileRequest request)
+{
+    var result = await _authService.AdminUpdateProfileAsync(request);
+    if (!result.IsSuccess)
+        return BadRequest(new { error = result.ErrorMessage });
+    return Ok(new { message = "อัปเดต User สำเร็จ" });
+}
 
 
 
