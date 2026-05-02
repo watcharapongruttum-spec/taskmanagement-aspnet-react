@@ -1,0 +1,32 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore TaskManagement/TaskManagement.slnx
+
+      - name: Build
+        run: dotnet build TaskManagement/TaskManagement.slnx --no-restore
+
+      - name: Build Docker image (Backend)
+        run: docker build -t taskmanagement-api ./TaskManagement
+
+      - name: Build Docker image (Frontend)
+        run: docker build -t taskmanagement-ui ./task-management-ui
