@@ -5,7 +5,7 @@ namespace TaskManagement.Application.Interfaces;
 
 public interface IAdminService
 {
-    Task<ServiceResult<List<UserResponse>>> GetAllUsersAsync();
+    Task<ServiceResult<PagedResult<UserResponse>>> GetUsersAsync(UserQueryRequest query);
     Task<ServiceResult<UserResponse>> UpdateRoleAsync(Guid userId, string role);
     Task<ServiceResult<bool>> DeleteUserAsync(Guid userId);
 }

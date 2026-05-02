@@ -20,9 +20,24 @@ public class AdminController : ControllerBase
     }
 
     [HttpGet("users")]
-    public async Task<IActionResult> GetAllUsers()
+    public async Task<IActionResult> GetUsers(
+        [FromQuery] string? search,
+        [FromQuery] string? role,
+        [FromQuery] string sortBy = "createdAt",
+        [FromQuery] string sortDir = "desc",
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 5)
     {
-        var result = await _adminService.GetAllUsersAsync();
+        var query = new UserQueryRequest
+        {
+            Search = search,
+            Role = role,
+            SortBy = sortBy,
+            SortDir = sortDir,
+            Page = page,
+            PageSize = pageSize
+        };
+        var result = await _adminService.GetUsersAsync(query);
         return Ok(result.Data);
     }
 
@@ -50,6 +65,6 @@ public class AdminController : ControllerBase
         var result = await _authService.RevokeAllUserTokensAsync(userId);
         if (!result.IsSuccess)
             return BadRequest(new { error = result.ErrorMessage });
-        return Ok(new { message = "Revoke tokens สำเร็จ User ถูก kick ออกทุก Device" });
+        return Ok(new { message = "Revoke tokens สำเร็จ" });
     }
 }
