@@ -4,20 +4,31 @@ export const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    const token = localStorage.getItem('token')
+    const accessToken = localStorage.getItem('accessToken')
+    const refreshToken = localStorage.getItem('refreshToken')
     const username = localStorage.getItem('username')
-    return token ? { token, username } : null
+    const role = localStorage.getItem('role')
+    return accessToken ? { accessToken, refreshToken, username, role } : null
   })
 
   function login(data) {
-    localStorage.setItem('token', data.token)
+    localStorage.setItem('accessToken', data.accessToken)
+    localStorage.setItem('refreshToken', data.refreshToken)
     localStorage.setItem('username', data.username)
-    setUser({ token: data.token, username: data.username })
+    localStorage.setItem('role', data.role)
+    setUser({
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+      username: data.username,
+      role: data.role
+    })
   }
 
   function logout() {
-    localStorage.removeItem('token')
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
     localStorage.removeItem('username')
+    localStorage.removeItem('role')
     setUser(null)
   }
 

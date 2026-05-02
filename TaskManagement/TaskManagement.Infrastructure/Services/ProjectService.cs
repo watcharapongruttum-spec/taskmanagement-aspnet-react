@@ -10,10 +10,12 @@ namespace TaskManagement.Infrastructure.Services;
 public class ProjectService : IProjectService
 {
     private readonly AppDbContext _db;
+    private readonly INotificationService _notification;
 
-    public ProjectService(AppDbContext db)
+    public ProjectService(AppDbContext db, INotificationService notification)
     {
         _db = db;
+        _notification = notification;
     }
 
     public async Task<ServiceResult<ProjectResponse>> CreateAsync(CreateProjectRequest request, Guid ownerId)
@@ -24,12 +26,15 @@ public class ProjectService : IProjectService
             Description = request.Description,
             OwnerId = ownerId
         };
-
         _db.Projects.Add(project);
         await _db.SaveChangesAsync();
 
         var owner = await _db.Users.FindAsync(ownerId);
-        return ServiceResult<ProjectResponse>.Success(MapToResponse(project, owner!.Username));
+        var response = MapToResponse(project, owner!.Username);
+
+        await _notification.NotifyProjectCreatedAsync(response);  // เพิ่ม
+
+        return ServiceResult<ProjectResponse>.Success(response);
     }
 
     public async Task<ServiceResult<List<ProjectResponse>>> GetAllByOwnerAsync(Guid ownerId)
@@ -38,7 +43,6 @@ public class ProjectService : IProjectService
             .Include(p => p.Owner)
             .Where(p => p.OwnerId == ownerId)
             .ToListAsync();
-
         var result = projects.Select(p => MapToResponse(p, p.Owner.Username)).ToList();
         return ServiceResult<List<ProjectResponse>>.Success(result);
     }
@@ -48,10 +52,8 @@ public class ProjectService : IProjectService
         var project = await _db.Projects
             .Include(p => p.Owner)
             .FirstOrDefaultAsync(p => p.Id == id);
-
         if (project is null)
             return ServiceResult<ProjectResponse>.Failure("Project not found.");
-
         return ServiceResult<ProjectResponse>.Success(MapToResponse(project, project.Owner.Username));
     }
 

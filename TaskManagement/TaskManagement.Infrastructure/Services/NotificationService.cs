@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.SignalR;
 using TaskManagement.Application.DTOs.Task;
 using TaskManagement.Application.Interfaces;
 using TaskManagement.Infrastructure.Hubs;
+using TaskManagement.Application.DTOs.Project; 
 
 namespace TaskManagement.Infrastructure.Services;
 
@@ -12,6 +13,11 @@ public class NotificationService : INotificationService
     public NotificationService(IHubContext<TaskHub> hubContext)
     {
         _hubContext = hubContext;
+    }
+
+    public async Task NotifyProjectCreatedAsync(ProjectResponse project)
+    {
+        await _hubContext.Clients.All.SendAsync("ProjectCreated", project);
     }
 
     public async Task NotifyTaskUpdatedAsync(Guid projectId, TaskResponse task)

@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import * as signalR from '@microsoft/signalr'
 import api from '../api/axios'
 import { useAuth } from '../context/AuthContext'
 
@@ -12,6 +13,23 @@ export default function DashboardPage() {
 
   useEffect(() => {
     api.get('/projects').then((res) => setProjects(res.data))
+
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl(`${import.meta.env.VITE_SIGNALR_URL || 'http://localhost:5280'}/hubs/tasks`, {
+        accessTokenFactory: () => user.accessToken,
+      })
+      .withAutomaticReconnect()
+      .build()
+
+    connection.on('ProjectCreated', (project) => {
+      setProjects(prev => {
+        if (prev.find(p => p.id === project.id)) return prev
+        return [...prev, project]
+      })
+    })
+
+    connection.start()
+    return () => connection.stop()
   }, [])
 
   async function createProject(e) {
@@ -21,6 +39,8 @@ export default function DashboardPage() {
     setName('')
     setDesc('')
   }
+
+  // ... ส่วน return เหมือนเดิม
 
   return (
     <div style={styles.container}>

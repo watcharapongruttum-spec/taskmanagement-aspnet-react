@@ -1,21 +1,18 @@
 import TaskCard from './TaskCard'
 
-const statusLabel = { 0: 'Todo', 1: 'In Progress', 2: 'Done' }
-const statusColor = { 0: '#faad14', 1: '#1677ff', 2: '#52c41a' }
+const statusColor = { 'Todo': '#faad14', 'In Progress': '#1677ff', 'Done': '#52c41a' }
 
-export default function TaskColumn({ status, tasks }) {
-  const filtered = tasks.filter((t) => t.status === status)
-
+export default function TaskColumn({ title, tasks, onUpdateStatus }) {
   return (
     <div style={styles.column}>
-      <div style={{ ...styles.header, borderTop: `3px solid ${statusColor[status]}` }}>
-        <span>{statusLabel[status]}</span>
-        <span style={styles.count}>{filtered.length}</span>
+      <div style={{ ...styles.header, borderTop: `3px solid ${statusColor[title] || '#ccc'}` }}>
+        <span>{title}</span>
+        <span style={styles.count}>{tasks.length}</span>
       </div>
-      {filtered.map((task) => (
-        <TaskCard key={task.id} task={task} />
+      {tasks.map((task) => (
+        <TaskCard key={task.id} task={task} onUpdateStatus={onUpdateStatus} />
       ))}
-      {filtered.length === 0 && <p style={styles.empty}>ไม่มี Task</p>}
+      {tasks.length === 0 && <p style={styles.empty}>ไม่มี Task</p>}
     </div>
   )
 }
