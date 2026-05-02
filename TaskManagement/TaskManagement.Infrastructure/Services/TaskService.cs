@@ -99,4 +99,15 @@ public class TaskService : ITaskService
             CreatedAt = t.CreatedAt
         };
     }
+
+    public async Task<ServiceResult<bool>> DeleteAsync(Guid taskId)
+    {
+        var task = await _db.Tasks.FindAsync(taskId);
+        if (task is null)
+            return ServiceResult<bool>.Failure("Task not found.");
+        _db.Tasks.Remove(task);
+        await _db.SaveChangesAsync();
+        return ServiceResult<bool>.Success(true);
+    }
+
 }

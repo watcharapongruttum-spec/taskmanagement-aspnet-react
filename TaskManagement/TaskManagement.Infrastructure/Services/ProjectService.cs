@@ -65,4 +65,30 @@ public class ProjectService : IProjectService
         OwnerUsername = ownerUsername,
         CreatedAt = p.CreatedAt
     };
+
+
+
+
+
+
+
+    public async Task<ServiceResult<bool>> DeleteAsync(Guid id)
+    {
+        var project = await _db.Projects.FindAsync(id);
+        if (project is null)
+            return ServiceResult<bool>.Failure("Project not found.");
+        _db.Projects.Remove(project);
+        await _db.SaveChangesAsync();
+        return ServiceResult<bool>.Success(true);
+    }
+
+
+
+
+
+
+
+
+
+
 }

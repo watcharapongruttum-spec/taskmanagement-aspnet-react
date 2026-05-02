@@ -46,4 +46,33 @@ public class ProjectsController : ControllerBase
 
         return Ok(result.Data);
     }
+
+
+
+
+
+
+
+
+
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _projectService.DeleteAsync(id);
+        if (!result.IsSuccess)
+            return NotFound(new { error = result.ErrorMessage });
+        return NoContent();
+    }
+
+
+
+
+
+
+
+
+
+
+
 }

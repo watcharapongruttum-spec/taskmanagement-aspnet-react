@@ -32,6 +32,14 @@ export default function DashboardPage() {
     return () => connection.stop()
   }, [])
 
+  async function deleteProject(e, projectId) {
+  e.stopPropagation()
+  if (!confirm('ยืนยันลบ Project นี้?')) return
+  await api.delete(`/projects/${projectId}`)
+  setProjects(prev => prev.filter(p => p.id !== projectId))
+}
+
+
   async function createProject(e) {
     e.preventDefault()
     const res = await api.post('/projects', { name, description: desc })
@@ -65,16 +73,23 @@ export default function DashboardPage() {
         </form>
       </div>
 
-      <h3>Projects ทั้งหมด</h3>
-      <div style={styles.grid}>
-        {projects.map((p) => (
-          <div key={p.id} style={styles.projectCard} onClick={() => navigate(`/projects/${p.id}`)}>
-            <h4>{p.name}</h4>
-            <p style={styles.desc}>{p.description || 'ไม่มี description'}</p>
-            <small style={styles.owner}>โดย {p.ownerUsername}</small>
-          </div>
-        ))}
+<h3>Projects ทั้งหมด</h3>
+<div style={styles.grid}>
+  {projects.map((p) => (
+    <div key={p.id} style={styles.projectCard} onClick={() => navigate(`/projects/${p.id}`)}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <h4 style={{ margin: 0 }}>{p.name}</h4>
+        <button
+          onClick={(e) => deleteProject(e, p.id)}
+          style={{ background: 'none', border: 'none', color: '#ff4d4f', cursor: 'pointer', fontSize: '16px' }}>
+          ✕
+        </button>
       </div>
+      <p style={styles.desc}>{p.description || 'ไม่มี description'}</p>
+      <small style={styles.owner}>โดย {p.ownerUsername}</small>
+    </div>
+  ))}
+</div>
     </div>
   )
 }

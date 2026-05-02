@@ -6,9 +6,11 @@ import api from "../api/axios";
 import TaskColumn from "../components/TaskColumn";
 
 export default function ProjectPage() {
-const { id: projectId } = useParams();
+  const { id: projectId } = useParams();
   const { user } = useAuth();
   const [tasks, setTasks] = useState([]);
+  const [title, setTitle] = useState("");
+  const [desc, setDesc] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,6 +38,23 @@ const { id: projectId } = useParams();
     return () => connection.stop();
   }, [projectId]);
 
+  const createTask = async (e) => {
+    e.preventDefault();
+    if (!title.trim()) return;
+    await api.post("/tasks", {
+      title,
+      description: desc,
+      projectId,
+    });
+    setTitle("");
+    setDesc("");
+  };
+
+  const deleteTask = async (taskId) => {
+  await api.delete(`/tasks/${taskId}`);
+  setTasks(prev => prev.filter(t => t.id !== taskId));
+};
+
   const updateStatus = async (taskId, status) => {
     await api.patch(`/tasks/${taskId}/status`, { status });
   };
@@ -47,18 +66,49 @@ const { id: projectId } = useParams();
   ];
 
   return (
-    <div style={{ padding: 24 }}>
+    <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
         <h2>Project Board</h2>
-        <button onClick={() => navigate("/dashboard")} style={{ padding: "8px 16px", cursor: "pointer" }}>← กลับ</button>
+        <button onClick={() => navigate("/dashboard")}
+          style={{ padding: "8px 16px", cursor: "pointer", borderRadius: 4, border: "1px solid #ccc" }}>
+          ← กลับ
+        </button>
       </div>
-      <div style={{ display: "flex", gap: 16 }}>
+
+      {/* Form สร้าง Task */}
+      <div style={{ background: "white", padding: 16, borderRadius: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.08)", marginBottom: 24 }}>
+        <h4 style={{ margin: "0 0 12px" }}>➕ สร้าง Task ใหม่</h4>
+        <form onSubmit={createTask} style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <input
+            placeholder="ชื่อ Task *"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            required
+            style={{ padding: "8px 12px", border: "1px solid #ccc", borderRadius: 4, flex: 2, minWidth: 150 }}
+          />
+          <input
+            placeholder="Description (optional)"
+            value={desc}
+            onChange={e => setDesc(e.target.value)}
+            style={{ padding: "8px 12px", border: "1px solid #ccc", borderRadius: 4, flex: 3, minWidth: 150 }}
+          />
+          <button type="submit"
+            style={{ padding: "8px 20px", background: "#1677ff", color: "white", border: "none", borderRadius: 4, cursor: "pointer" }}>
+            สร้าง
+          </button>
+        </form>
+      </div>
+
+        {/* Kanban Board */}
+        <div style={{ display: "flex", gap: 16 }}>
         {statuses.map(s => (
-          <TaskColumn key={s.value} title={s.label}
+            <TaskColumn key={s.value} title={s.label}
+            statusValue={s.value}
             tasks={tasks.filter(t => Number(t.status) === s.value)}
-            onUpdateStatus={updateStatus} />
+            onUpdateStatus={updateStatus}
+            onDelete={deleteTask} />
         ))}
-      </div>
+        </div>
     </div>
   );
 }
